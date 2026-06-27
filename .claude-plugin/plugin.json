@@ -1,0 +1,8 @@
+{
+  "name": "claude-hooks",
+  "description": "macOS desktop notifications for Claude Code: fires on attention/turn-end, click to focus the originating window, and suppresses the notification when you're already looking at that session.",
+  "version": "1.0.0",
+  "author": {
+    "name": "steryereo"
+  }
+}

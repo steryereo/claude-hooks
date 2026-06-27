@@ -38,14 +38,23 @@ macOS gates the AppleScript automation behind two separate permission prompts, e
 
 ## Install
 
-Clone into `~/.claude/hooks` (or clone elsewhere and point the config at it):
+This repo is both a Claude Code plugin and a single-plugin marketplace, so it installs without hand-editing `settings.json`. Install the dependencies above first (`terminal-notifier`, `jq`) — the plugin can't install them for you.
+
+```sh
+/plugin marketplace add steryereo/claude-hooks
+/plugin install claude-hooks@steryereo
+```
+
+That registers the `Stop` and `Notification` hooks automatically. To install from a local clone instead of GitHub, point the marketplace at the clone: `/plugin marketplace add ~/path/to/claude-hooks`.
+
+### Manual alternative (no plugin)
+
+Clone the repo and wire the hooks into `~/.claude/settings.json` yourself. If you do this **and** install the plugin, both fire and you get duplicate notifications — pick one.
 
 ```sh
 git clone <repo-url> ~/.claude/hooks
 chmod +x ~/.claude/hooks/*.sh
 ```
-
-Then wire them up in `~/.claude/settings.json`
 
 ```json
 {

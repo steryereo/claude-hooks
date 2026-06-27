@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "steryereo",
+  "description": "Personal Claude Code plugins.",
+  "owner": {
+    "name": "steryereo"
+  },
+  "plugins": [
+    {
+      "name": "claude-hooks",
+      "description": "macOS desktop notifications for Claude Code, with click-to-focus and already-focused suppression.",
+      "author": {
+        "name": "steryereo"
+      },
+      "category": "notifications",
+      "source": "."
+    }
+  ]
+}

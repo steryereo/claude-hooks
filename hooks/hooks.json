@@ -1,0 +1,25 @@
+{
+  "description": "Desktop notifications on Stop (turn finished) and Notification (needs attention).",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/notify-stop.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/notify-attention.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
