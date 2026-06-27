@@ -21,7 +21,7 @@ IFS='|' read -r app proc <<< "$("$HOOK_DIR/resolve-app.sh")"
 iterm_sid="${ITERM_SESSION_ID##*:}"
 
 # Skip the notification if the user is already looking at this project's window.
-if "$HOOK_DIR/window-focused.sh" "$cwd" "$proc"; then
+if "$HOOK_DIR/window-focused.sh" "$cwd" "$proc" "$iterm_sid"; then
   exit 0
 fi
 

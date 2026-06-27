@@ -26,7 +26,7 @@ Click-to-focus uses, in order
 1. on **iTerm2**, the originating session via `$ITERM_SESSION_ID` (captured at hook time) — pinpoints the right window even with several windows on the same directory.
 2. otherwise, raising the first window whose title contains an identifying segment of the session path (e.g. the project folder) — works for VS Code by default; (3) if neither matches, the host app is still brought forward (just not a specific window).
 
-**iTerm2 note:** click-to-focus is precise out of the box (strategy 1, no setup). The *suppression* check (`window-focused.sh`) still matches on the window title, and iTerm's default title is the tab/session name, not the working directory — so suppression won't reliably fire in iTerm. To enable it, include the directory in the title: iTerm → Settings → Profiles → General → Title, enable "Working Directory" (or use a `\(currentDir)`-based title/badge format).
+**iTerm2 note:** both click-to-focus and the suppression check are precise out of the box, no setup. They both key off `$ITERM_SESSION_ID` (captured at hook time): the click reveals that exact session, and `window-focused.sh` asks iTerm for the currently-focused session and suppresses only when it's this one. That distinguishes the right tab/split-pane even when several share a working directory — title matching (used for other hosts) can't. If iTerm isn't the frontmost app, or the focused session is a different one, the notification is sent.
 
 ## Dependencies
 
@@ -45,7 +45,7 @@ git clone <repo-url> ~/.claude/hooks
 chmod +x ~/.claude/hooks/*.sh
 ```
 
-Then wire them up in `~/.claude/settings.json` (this part is NOT committed here — `settings.json` holds personal permissions/secrets and should stay out of git):
+Then wire them up in `~/.claude/settings.json`
 
 ```json
 {
