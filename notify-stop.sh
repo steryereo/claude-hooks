@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Stop hook: notify when Claude Code finishes responding.
+# Title shows the project folder; body shows the last line of Claude's reply.
+# Reads the hook JSON payload from stdin.
+
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+input=$(cat)
+notifier=$(command -v terminal-notifier || echo /opt/homebrew/bin/terminal-notifier)
+
+cwd=$(printf '%s' "$input" | jq -r '.cwd // ""')
+transcript=$(printf '%s' "$input" | jq -r '.transcript_path // ""')
+
+# Skip the notification if the user is already looking at this project's window.
+if "$HOOK_DIR/window-focused.sh" "$cwd"; then
+  exit 0
+fi
+
+proj=$(basename "$cwd" 2>/dev/null)
+[ -z "$proj" ] && proj="Claude Code"
+
+msg="Ready"
+if [ -n "$transcript" ] && [ -f "$transcript" ]; then
+  last=$(tail -n 100 "$transcript" \
+    | jq -r 'select(.type=="assistant") | .message.content[]? | select(.type=="text") | .text' 2>/dev/null \
+    | tail -1 | tr '\n' ' ' | cut -c1-150)
+  [ -n "$last" ] && msg="$last"
+fi
+
+"$notifier" -message "$msg" -title "Claude Code ✓ $proj" \
+  -execute "$HOOK_DIR/focus-window.sh '$proj'" \
+  -sound 'Glass' 2>/dev/null || true
