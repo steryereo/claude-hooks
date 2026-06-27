@@ -2,7 +2,7 @@
 # Decide whether the user is already looking at THIS session's window,
 # in which case the caller should suppress its notification.
 #
-#   exit 0  -> this session's window is frontmost (SUPPRESS the notification)
+#   exit 0  -> this session's window/pane is focused (SUPPRESS the notification)
 #   exit 1  -> user is elsewhere (SEND the notification)
 #
 # Arg 1: the session cwd (from the hook JSON payload).

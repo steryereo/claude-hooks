@@ -34,7 +34,7 @@ Click-to-focus uses, in order
 - [`jq`](https://jqlang.github.io/jq/) — `brew install jq`
 - macOS (the focus logic drives the host app via AppleScript / System Events)
 
-First time a notification is clicked, macOS prompts to let `terminal-notifier` control the host app / System Events — approve it for click-to-focus to work.
+macOS gates the AppleScript automation behind two separate permission prompts, each appearing the first time that path runs. The suppression check drives the host app at **hook time**, so the host app (iTerm2, etc.) prompts to control System Events / iTerm2 the first time a notification would fire — until approved, suppression fails safe and the notification is still sent. Click-to-focus runs at **click time** under `terminal-notifier`, so the first click prompts to let `terminal-notifier` control the host app / System Events — approve it for click-to-focus to work.
 
 ## Install
 
