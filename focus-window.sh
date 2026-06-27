@@ -36,6 +36,7 @@ on run argv
       repeat with t in tabs of w
         repeat with s in sessions of t
           if (id of s) is sid then
+            tell t to select
             tell s to select
             activate
             return
