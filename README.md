@@ -9,7 +9,7 @@
 
 | Script | Hook event | What it does |
 | --- | --- | --- |
-| `notify-stop.sh` | `Stop` | Notifies when Claude finishes responding. body shows the last line of the reply. |
+| `notify-stop.sh` | `Stop` | Notifies when Claude finishes responding. Body shows the last line of the reply. |
 | `notify-attention.sh` | `Notification` | Notifies on permission prompts / idle waits. |
 | `focus-window.sh` | — | Helper: invoked when a notification is clicked, raises the matching host-app window. |
 | `resolve-app.sh` | — | Helper: maps `$TERM_PROGRAM` to the macOS app/process names of the host terminal/IDE. |
@@ -28,9 +28,9 @@ Click-to-focus uses, in order
 
 ## Dependencies
 
-- [`terminal-notifier`](https://github.com/julienXX/terminal-notifier) — `brew install terminal-notifier`
-- [`jq`](https://jqlang.github.io/jq/) — `brew install jq`
-- macOS (the focus logic drives the host app via AppleScript / System Events)
+- [`terminal-notifier`](https://github.com/julienXX/terminal-notifier) — posts the macOS desktop notification and runs the click-to-focus callback. `brew install terminal-notifier`
+- [`jq`](https://jqlang.github.io/jq/) — parses the hook JSON payload on stdin (cwd, transcript, notification type/message). `brew install jq`
+- macOS — the focus logic drives the host app via AppleScript / System Events.
 
 ## Install
 
@@ -41,7 +41,7 @@ This repo is both a Claude Code plugin and a single-plugin marketplace. Install 
 /plugin install claude-hooks@steryereo
 ```
 
-this registers the `Stop` and `Notification` hooks automatically. To install from a local clone instead of GitHub, point the marketplace at the clone: `/plugin marketplace add ~/path/to/claude-hooks`.
+This registers the `Stop` and `Notification` hooks automatically. To install from a local clone instead of GitHub, point the marketplace at the clone: `/plugin marketplace add ~/path/to/claude-hooks`.
 
 Note: macOS asks for AppleScript automation permission twice — once per path, the first time each runs:
 
