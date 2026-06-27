@@ -1,6 +1,6 @@
 # Claude Code hooks
 
-Personal [Claude Code](https://docs.claude.com/en/docs/claude-code) hook scripts
+[Claude Code](https://docs.claude.com/en/docs/claude-code) hook scripts
 
 - fire a macOS desktop notification when Claude needs attention or finishes a turn
 - switch to the window that needs attention when the notification is clicked
@@ -9,24 +9,22 @@ Personal [Claude Code](https://docs.claude.com/en/docs/claude-code) hook scripts
 
 | Script | Hook event | What it does |
 | --- | --- | --- |
-| `notify-stop.sh` | `Stop` | Notifies when Claude finishes responding; body shows the last line of the reply. |
+| `notify-stop.sh` | `Stop` | Notifies when Claude finishes responding. body shows the last line of the reply. |
 | `notify-attention.sh` | `Notification` | Notifies on permission prompts / idle waits. |
 | `focus-window.sh` | — | Helper: invoked when a notification is clicked, raises the matching host-app window. |
 | `resolve-app.sh` | — | Helper: maps `$TERM_PROGRAM` to the macOS app/process names of the host terminal/IDE. |
-| `window-focused.sh` | — | Helper: returns 0 if you're already looking at this session's window (caller then suppresses the notification). |
+| `window-focused.sh` | — | Helper: checks if you're already looking at this session's window (caller then suppresses the notification). |
 
-
-Scripts self-resolve their own directory, so the repo works wherever it's cloned.
 
 ## Supported host apps
 
-The focus / suppression logic detects the host app from `$TERM_PROGRAM` (resolved at hook time, since it isn't available in the click callback). Out of the box: **VS Code**, **iTerm2**, and **Terminal.app**. Other apps still get notifications — only click-to-focus and the "already focused" suppression are skipped.
+The focus / suppression logic detects the host app from `$TERM_PROGRAM`. Out of the box: **VS Code**, **iTerm2**, and **Terminal.app**. Other apps still get notifications — only click-to-focus and the "already focused" suppression are skipped.
 
 Click-to-focus uses, in order
-1. on **iTerm2**, the originating session via `$ITERM_SESSION_ID` (captured at hook time) — pinpoints the right window even with several windows on the same directory.
-2. otherwise, raising the first window whose title contains an identifying segment of the session path (e.g. the project folder) — works for VS Code by default; (3) if neither matches, the host app is still brought forward (just not a specific window).
+1. on **iTerm2**, the originating session via `$ITERM_SESSION_ID` — pinpoints the window and tab that the notification originates from.
+2. otherwise, raising the first window whose title contains an identifying segment of the session path (e.g. the project folder). This works for VS Code by default. Other programs might require configuration to include current working directory in the window title
+3. if neither matches, the host app is still brought forward, just not a specific window or tab.
 
-**iTerm2 note:** both click-to-focus and the suppression check are precise out of the box, no setup. They both key off `$ITERM_SESSION_ID` (captured at hook time): the click reveals that exact session, and `window-focused.sh` asks iTerm for the currently-focused session and suppresses only when it's this one. That distinguishes the right tab/split-pane even when several share a working directory — title matching (used for other hosts) can't. If iTerm isn't the frontmost app, or the focused session is a different one, the notification is sent.
 
 ## Dependencies
 
@@ -34,37 +32,18 @@ Click-to-focus uses, in order
 - [`jq`](https://jqlang.github.io/jq/) — `brew install jq`
 - macOS (the focus logic drives the host app via AppleScript / System Events)
 
-macOS gates the AppleScript automation behind two separate permission prompts, each appearing the first time that path runs. The suppression check drives the host app at **hook time**, so the host app (iTerm2, etc.) prompts to control System Events / iTerm2 the first time a notification would fire — until approved, suppression fails safe and the notification is still sent. Click-to-focus runs at **click time** under `terminal-notifier`, so the first click prompts to let `terminal-notifier` control the host app / System Events — approve it for click-to-focus to work.
-
 ## Install
 
-This repo is both a Claude Code plugin and a single-plugin marketplace, so it installs without hand-editing `settings.json`. Install the dependencies above first (`terminal-notifier`, `jq`) — the plugin can't install them for you.
+This repo is both a Claude Code plugin and a single-plugin marketplace. Install the dependencies above first, then run the following:
 
 ```sh
 /plugin marketplace add steryereo/claude-hooks
 /plugin install claude-hooks@steryereo
 ```
 
-That registers the `Stop` and `Notification` hooks automatically. To install from a local clone instead of GitHub, point the marketplace at the clone: `/plugin marketplace add ~/path/to/claude-hooks`.
+this registers the `Stop` and `Notification` hooks automatically. To install from a local clone instead of GitHub, point the marketplace at the clone: `/plugin marketplace add ~/path/to/claude-hooks`.
 
-### Manual alternative (no plugin)
+Note: macOS asks for AppleScript automation permission twice — once per path, the first time each runs:
 
-Clone the repo and wire the hooks into `~/.claude/settings.json` yourself. If you do this **and** install the plugin, both fire and you get duplicate notifications — pick one.
-
-```sh
-git clone <repo-url> ~/.claude/hooks
-chmod +x ~/.claude/hooks/*.sh
-```
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      { "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/notify-stop.sh" }] }
-    ],
-    "Notification": [
-      { "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/notify-attention.sh" }] }
-    ]
-  }
-}
-```
+- **Hook time** — the host app (iTerm2, etc.) prompts to control System Events / iTerm2 for the suppression check. Decline or ignore it and suppression just fails safe: the notification is still sent.
+- **Click time** — `terminal-notifier` prompts to control the host app / System Events for click-to-focus. Approve it, or clicking a notification won't focus the window.
