@@ -11,8 +11,11 @@ notifier=$(command -v terminal-notifier || echo /opt/homebrew/bin/terminal-notif
 cwd=$(printf '%s' "$input" | jq -r '.cwd // ""')
 transcript=$(printf '%s' "$input" | jq -r '.transcript_path // ""')
 
+# Resolve the host terminal/IDE (VS Code, iTerm, Terminal, ...); empty if unknown.
+IFS='|' read -r app proc <<< "$("$HOOK_DIR/resolve-app.sh")"
+
 # Skip the notification if the user is already looking at this project's window.
-if "$HOOK_DIR/window-focused.sh" "$cwd"; then
+if "$HOOK_DIR/window-focused.sh" "$cwd" "$proc"; then
   exit 0
 fi
 
@@ -27,6 +30,9 @@ if [ -n "$transcript" ] && [ -f "$transcript" ]; then
   [ -n "$last" ] && msg="$last"
 fi
 
+# Click-to-focus only when we recognise the host app.
+focus=()
+[ -n "$app" ] && [ -n "$proc" ] && focus=(-execute "$HOOK_DIR/focus-window.sh '$app' '$proc' '$proj'")
+
 "$notifier" -message "$msg" -title "Claude Code ✓ $proj" \
-  -execute "$HOOK_DIR/focus-window.sh '$proj'" \
-  -sound 'Glass' 2>/dev/null || true
+  "${focus[@]}" -sound 'Glass' 2>/dev/null || true

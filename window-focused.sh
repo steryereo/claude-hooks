@@ -6,16 +6,19 @@
 #   exit 1  -> user is elsewhere (SEND the notification)
 #
 # Arg 1: the session cwd (from the hook JSON payload).
+# Arg 2: the host app's System Events process name (from resolve-app.sh).
 #
-# The frontmost process must be VS Code ("Code"), and the frontmost window's
-# title must contain a meaningful segment of the session path (e.g. ".claude",
-# or "myrepo" for a multi-root "myrepo (Workspace)" window). Generic path
-# segments (Users, home dir, Documents, git, ...) are ignored to avoid false
-# matches. Process name and window title are read in one System Events call so
-# they can't disagree. On any uncertainty we default to NOTIFYING.
+# The frontmost process must be the host app, and the frontmost window's title
+# must contain a meaningful segment of the session path (e.g. ".claude", or
+# "myrepo" for a multi-root "myrepo (Workspace)" window). Generic path segments
+# (Users, home dir, Documents, git, ...) are ignored to avoid false matches.
+# Process name and window title are read in one System Events call so they can't
+# disagree. On any uncertainty (incl. unknown host app) we default to NOTIFYING.
 
 cwd="$1"
+proc="$2"
 [ -z "$cwd" ] && exit 1
+[ -z "$proc" ] && exit 1
 
 front=$(osascript <<'APPLESCRIPT' 2>/dev/null
 tell application "System Events"
@@ -34,8 +37,8 @@ APPLESCRIPT
 pname="${front%%||*}"
 title="${front#*||}"
 
-# Frontmost app must be VS Code (its process name is "Code").
-[ "$pname" = "Code" ] || exit 1
+# Frontmost app must be the host app.
+[ "$pname" = "$proc" ] || exit 1
 [ -z "$title" ] && exit 1
 
 # Match meaningful path segments against the frontmost window title.

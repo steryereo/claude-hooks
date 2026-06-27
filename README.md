@@ -1,8 +1,9 @@
 # Claude Code hooks
 
-Personal [Claude Code](https://docs.claude.com/en/docs/claude-code) hook scripts —
-macOS desktop notifications when Claude needs attention or finishes a turn, with
-click-to-focus the right VS Code window.
+Personal [Claude Code](https://docs.claude.com/en/docs/claude-code) hook scripts
+
+- fire a macOS desktop notification when Claude needs attention or finishes a turn
+- switch to the window that needs attention when the notification is clicked
 
 ## Scripts
 
@@ -10,19 +11,33 @@ click-to-focus the right VS Code window.
 | --- | --- | --- |
 | `notify-stop.sh` | `Stop` | Notifies when Claude finishes responding; body shows the last line of the reply. |
 | `notify-attention.sh` | `Notification` | Notifies on permission prompts / idle waits. |
-| `window-focused.sh` | — | Helper: returns 0 if you're already looking at this session's VS Code window (caller then suppresses the notification). |
-| `focus-window.sh` | — | Helper: invoked when a notification is clicked, raises the matching VS Code window. |
+| `resolve-app.sh` | — | Helper: maps `$TERM_PROGRAM` to the macOS app/process names of the host terminal/IDE. |
+| `focus-window.sh` | — | Helper: invoked when a notification is clicked, raises the matching host-app window. |
+| `window-focused.sh` | — | Helper: returns 0 if you're already looking at this session's window (caller then suppresses the notification). |
+
 
 Scripts self-resolve their own directory, so the repo works wherever it's cloned.
+
+## Supported host apps
+
+The focus / suppression logic detects the host app from `$TERM_PROGRAM` (resolved
+at hook time, since it isn't available in the click callback). Out of the box:
+**VS Code**, **iTerm2**, and **Terminal.app**. Other apps still get notifications
+— only click-to-focus and the "already focused" suppression are skipped. Add more
+in `resolve-app.sh`.
+
+Click-to-focus relies on the host app putting an identifying segment of the
+session path (e.g. the project folder) in its window title — true for VS Code by
+default; terminals depend on profile/title settings.
 
 ## Dependencies
 
 - [`terminal-notifier`](https://github.com/julienXX/terminal-notifier) — `brew install terminal-notifier`
 - [`jq`](https://jqlang.github.io/jq/) — `brew install jq`
-- macOS + VS Code (the focus logic targets the "Code" process)
+- macOS (the focus logic drives the host app via AppleScript / System Events)
 
 First time a notification is clicked, macOS prompts to let `terminal-notifier`
-control VS Code / System Events — approve it for click-to-focus to work.
+control the host app / System Events — approve it for click-to-focus to work.
 
 ## Install
 
