@@ -26,17 +26,19 @@ at hook time, since it isn't available in the click callback). Out of the box:
 — only click-to-focus and the "already focused" suppression are skipped. Add more
 in `resolve-app.sh`.
 
-Click-to-focus relies on the host app putting an identifying segment of the
-session path (e.g. the project folder) in its window title — true for VS Code by
-default; terminals depend on profile/title settings. When the title doesn't
-match, the host app is still brought forward (just not a specific window).
+Click-to-focus uses, in order: (1) on **iTerm2**, the exact originating session
+via `$ITERM_SESSION_ID` (captured at hook time) — pinpoints the right window even
+with several windows on the same directory; (2) otherwise, raising the first
+window whose title contains an identifying segment of the session path (e.g. the
+project folder) — works for VS Code by default; (3) if neither matches, the host
+app is still brought forward (just not a specific window).
 
-**iTerm2:** by default the window title is the tab/session name (e.g. the Claude
-Code conversation name), not the working directory — so precise window targeting
-and suppression won't reliably fire. To make them work, include the directory in
+**iTerm2 note:** click-to-focus is precise out of the box (strategy 1, no setup).
+The *suppression* check (`window-focused.sh`) still matches on the window title,
+and iTerm's default title is the tab/session name, not the working directory — so
+suppression won't reliably fire in iTerm. To enable it, include the directory in
 the title: iTerm → Settings → Profiles → General → Title, enable "Working
-Directory" (or use a `\(currentDir)`-based title/badge format). Once the cwd is
-in the title, the existing matching picks the exact window with no script change.
+Directory" (or use a `\(currentDir)`-based title/badge format).
 
 ## Dependencies
 
