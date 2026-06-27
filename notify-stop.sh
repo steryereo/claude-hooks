@@ -14,6 +14,10 @@ transcript=$(printf '%s' "$input" | jq -r '.transcript_path // ""')
 # Resolve the host terminal/IDE (VS Code, iTerm, Terminal, ...); empty if unknown.
 IFS='|' read -r app proc <<< "$("$HOOK_DIR/resolve-app.sh")"
 
+# iTerm session id (GUID after the wXtYpZ: prefix); empty outside iTerm. Lets the
+# click target the exact originating window even with same-dir duplicates.
+iterm_sid="${ITERM_SESSION_ID##*:}"
+
 # Skip the notification if the user is already looking at this project's window.
 if "$HOOK_DIR/window-focused.sh" "$cwd" "$proc"; then
   exit 0
@@ -32,7 +36,7 @@ fi
 
 # Click-to-focus only when we recognise the host app.
 focus=()
-[ -n "$app" ] && [ -n "$proc" ] && focus=(-execute "$HOOK_DIR/focus-window.sh '$app' '$proc' '$proj'")
+[ -n "$app" ] && [ -n "$proc" ] && focus=(-execute "$HOOK_DIR/focus-window.sh '$app' '$proc' '$proj' '$iterm_sid'")
 
 "$notifier" -message "$msg" -title "Claude Code ✓ $proj" \
   "${focus[@]}" -sound 'Glass' 2>/dev/null || true
