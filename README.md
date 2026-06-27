@@ -28,9 +28,14 @@ Click-to-focus uses, in order
 
 ## Dependencies
 
-- [`terminal-notifier`](https://github.com/julienXX/terminal-notifier) — posts the macOS desktop notification and runs the click-to-focus callback. `brew install terminal-notifier`
-- [`jq`](https://jqlang.github.io/jq/) — parses the hook JSON payload on stdin (cwd, transcript, notification type/message). `brew install jq`
-- macOS — the focus logic drives the host app via AppleScript / System Events.
+- [`terminal-notifier`](https://github.com/julienXX/terminal-notifier)
+  - posts the macOS desktop notification and runs the click-to-focus callback.
+  - To install: `brew install terminal-notifier`
+- [`jq`](https://jqlang.github.io/jq/)
+  - parses the hook JSON payload on stdin.
+  - To install: `brew install jq`
+- macOS
+  — the focus logic uses AppleScript / System Events.
 
 ## Install
 
