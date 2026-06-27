@@ -28,7 +28,15 @@ in `resolve-app.sh`.
 
 Click-to-focus relies on the host app putting an identifying segment of the
 session path (e.g. the project folder) in its window title — true for VS Code by
-default; terminals depend on profile/title settings.
+default; terminals depend on profile/title settings. When the title doesn't
+match, the host app is still brought forward (just not a specific window).
+
+**iTerm2:** by default the window title is the tab/session name (e.g. the Claude
+Code conversation name), not the working directory — so precise window targeting
+and suppression won't reliably fire. To make them work, include the directory in
+the title: iTerm → Settings → Profiles → General → Title, enable "Working
+Directory" (or use a `\(currentDir)`-based title/badge format). Once the cwd is
+in the title, the existing matching picks the exact window with no script change.
 
 ## Dependencies
 
